@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.1.0 (2020-10-20)
+
+
+### Features
+
+* **audit:** add scheduled security audit scan ([28508f1](https://github.com/dirvine/self_encryption/commit/28508f190ab3bc48ad4ecbb9941f23ceae378e43))
+* **ci:** add cargo publish to CI ([80c614f](https://github.com/dirvine/self_encryption/commit/80c614ff72bfe733e815c40d125f536fdd770667))
+* **get:** self mut for get api ([1dfeca3](https://github.com/dirvine/self_encryption/commit/1dfeca3715604612aea982fa9c795413e4b443f5))
+
+
+### Bug Fixes
+
+* **clippy:** fix clippy errors ([7dc38d1](https://github.com/dirvine/self_encryption/commit/7dc38d180c1b715730d6100cf67d13072c5ef1c2))
+
 ### [0.19.2](https://github.com/maidsafe/self_encryption/compare/v0.19.1...v0.19.2) (2020-10-09)
 
 ### [0.19.1](https://github.com/maidsafe/self_encryption/compare/v0.19.0...v0.19.1) (2020-09-21)
