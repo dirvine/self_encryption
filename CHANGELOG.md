@@ -2,6 +2,107 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.0.0 (2024-11-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* This PR alters the API
+* the parameter is changed on public methods.
+* this will affect current chunked data
+* correct max chunk size to 500kiB
+* reducing the max chunk size from 1MB to 500kB
+* Public API changes as SecretKey is renamed to DataMap.
+* **docs:** Complete change of API.
+* **deps:** underlying deps were updated
+* **self_encryptor.rs:** As this makes the previous data unusable, this is a breaking change.
+* **test/lib.rs:** Last commit changed the argument types of the SE API
+* **self_encryptor.rs:** Remove truncate api from self encryptor
+* **tokio:** new Tokio runtime version is not backward compatible with tokio versions < 1.
+* **self_encryptor.rs:** Previous commit (c6aafe6) introduced a breaking change due to introduction of new delete trait.
+
+### Features
+
+* update breaking change ([080cc24](https://github.com/dirvine/self_encryption/commit/080cc2491d1d3f030adb73bdcbb9b5287259ceca))
+* **data_map:** Add hierarchical data map shrinking and expansion ([b80f1cd](https://github.com/dirvine/self_encryption/commit/b80f1cd5c3c0a0468377a0330c6b4bb1b8f76c1b))
+* **python:** Enhance Python Bindings, Add Streaming Decrypt, and Improve Testing ([e0077ea](https://github.com/dirvine/self_encryption/commit/e0077eaf42e1c4f2009d61d02e157043e2087b9f))
+* **storage:** add recursive data map retrieval for decryption ([b2292b1](https://github.com/dirvine/self_encryption/commit/b2292b1a4bbad9b68958d3192e48272dde8982d6))
+* add python bindings using PyO3 ([b39f875](https://github.com/dirvine/self_encryption/commit/b39f875f9469c047eaf0a92e346bac5373b6abd7))
+* allow compile time override of MAX_CHUNK_SIZE ([1a4334f](https://github.com/dirvine/self_encryption/commit/1a4334f2d1c313d56363be578dcdad92ff8466c4))
+* delete for Self-Encryptor ([7480376](https://github.com/dirvine/self_encryption/commit/74803764955e3fc46771012ab81f2fee3ea59668))
+* encrypt from file ([b7f0a38](https://github.com/dirvine/self_encryption/commit/b7f0a384eff22382da8418b239adcb2bf2d0f086))
+* encrypt/decrypt to/from disk files ([d585909](https://github.com/dirvine/self_encryption/commit/d5859091c648fdcfbf0b09dcb44da577c76bfab6))
+* PYPI Token ([50fb896](https://github.com/dirvine/self_encryption/commit/50fb89651bc4f056d3a93bd902b0438d93dbbab0))
+* PYPI Token ([e834b99](https://github.com/dirvine/self_encryption/commit/e834b998ef273db5d754e1521c0bb40f9a31a7c1))
+* PYPI Token / linux/mac/win ([a1f0959](https://github.com/dirvine/self_encryption/commit/a1f0959416383a719ad98a5e7e3e6786ce3a82a4))
+* PYPI Token / linux/mac/win ([d4bb999](https://github.com/dirvine/self_encryption/commit/d4bb999a47f807e3d8d8efca6add1d510bf356c7))
+* PYPI Token / linux/mac/win test 5 ([eba957e](https://github.com/dirvine/self_encryption/commit/eba957e0d5f92fe13675d01526fe05221b4a0b0e))
+* PYPI Token / linux/mac/win test 6 ([229658c](https://github.com/dirvine/self_encryption/commit/229658c924711269e41bd82c23a7eb4bd79bf18a))
+* PYPI Token / linux/mac/win test 7 ([32bcf4e](https://github.com/dirvine/self_encryption/commit/32bcf4e9683ec6499ea288511126ee454e527ffb))
+* Python full bindings ([521854f](https://github.com/dirvine/self_encryption/commit/521854f4144908a2c443a0464ae3ffc4ed2c7c0f))
+* reduce MIN_CHUNK_SIZE and MIN_ENCRYPTABLE_BYTES down to 1/3 bytes. ([11f6a70](https://github.com/dirvine/self_encryption/commit/11f6a70e6c2a68085612b2c96d6aadca3c8c4f20))
+* reduce tokio dep requirements ([5f1ab1a](https://github.com/dirvine/self_encryption/commit/5f1ab1a3ccd6af6d190cdd3e1580ed0a874fe9a3))
+* reducing the max chunk size from 1MB to 500kB ([7577322](https://github.com/dirvine/self_encryption/commit/7577322d9288ce516a9e56dec3aa0977be45e1ac))
+* stream encryptor write encrypted chunks to disk ([5f3f906](https://github.com/dirvine/self_encryption/commit/5f3f906804cd2e6871f0f2e982977244afa5e3ec))
+* stream self encryptor ([abdc7c1](https://github.com/dirvine/self_encryption/commit/abdc7c11a404b65109009759ed13f30443f37737))
+* test full python bindings ([753c0f0](https://github.com/dirvine/self_encryption/commit/753c0f01e6411a88bc1de2e9b1bea3c0d74ba09e))
+* test pythno bindings ([ce5c188](https://github.com/dirvine/self_encryption/commit/ce5c188175f79d54fd7fb499ceb5bd8276439ab1))
+* test python bindings ([7ef8f31](https://github.com/dirvine/self_encryption/commit/7ef8f316d86bb15f4d39cd5d4e17b1ae82d8fc8c))
+* test python bindings ([47ca12f](https://github.com/dirvine/self_encryption/commit/47ca12f054d1eb1d36d267738b1a38676a9f8324))
+* version bump and fmt ([b65d196](https://github.com/dirvine/self_encryption/commit/b65d196fd856c8156bfae0aecc92326cde27289e))
+* **audit:** add scheduled security audit scan ([28508f1](https://github.com/dirvine/self_encryption/commit/28508f190ab3bc48ad4ecbb9941f23ceae378e43))
+* **ci:** add cargo publish to CI ([80c614f](https://github.com/dirvine/self_encryption/commit/80c614ff72bfe733e815c40d125f536fdd770667))
+* **errors:** add specific for too few bytes ([4b572e9](https://github.com/dirvine/self_encryption/commit/4b572e9857529d76707d6e304d62d9a048850d42))
+* **hierarchical:** Add hierarchical data maps and flexible storage backends ([92895a5](https://github.com/dirvine/self_encryption/commit/92895a54299bdab8a9097b6f49576eb97dadfc3c))
+* add optional child field to DataMap ([69071c1](https://github.com/dirvine/self_encryption/commit/69071c1db0a52f30c9ba9d39ce8337a0fb152b0a))
+* PYPI Token / linux/mac/win test 8 ([ef2a18f](https://github.com/dirvine/self_encryption/commit/ef2a18fa0ffdd85356abd8603247922e86abcd18))
+* **get:** self mut for get api ([1dfeca3](https://github.com/dirvine/self_encryption/commit/1dfeca3715604612aea982fa9c795413e4b443f5))
+* **read:** perform reading from storage in parallel for faster reads ([e760063](https://github.com/dirvine/self_encryption/commit/e76006387a24c88bb3acaacdc2484dcd1c6068f2))
+* **reading:** implement faster reading ([26799d9](https://github.com/dirvine/self_encryption/commit/26799d93658cbd3b11478aea1ad482ecdb8f25bf))
+* **self_encryptor.rs:** Remove truncate api from self encryptor ([77b2f57](https://github.com/dirvine/self_encryption/commit/77b2f57331624396cf21c484f477c5101d4ea207))
+* **self_encryptor.rs:** Store chunks on write ([bed44c4](https://github.com/dirvine/self_encryption/commit/bed44c446bfb364e48c9a17a70d6fb5399723685))
+* **storage:** delete trait for SEStorage ([056c4b7](https://github.com/dirvine/self_encryption/commit/056c4b7d4cd63dc3d32a7de46338099de817915a))
+
+
+### Bug Fixes
+
+* correct max chunk size to 500kiB ([15f41a0](https://github.com/dirvine/self_encryption/commit/15f41a06c1845c9a5afc29d04c3b153b6dfdc889))
+* enforce min size, sort keys in new ([e7f4ec0](https://github.com/dirvine/self_encryption/commit/e7f4ec0eef1343c234e7b69143048250523504d2))
+* ensure decrypter targeting file shall not be pre-existing ([dbeacce](https://github.com/dirvine/self_encryption/commit/dbeaccedf9a1be4d6f0ebfb4229eb810c48a6b07))
+* improve chunk handling and add comprehensive tests ([2720c5a](https://github.com/dirvine/self_encryption/commit/2720c5a32e6a07d5e2a633b3c6dc8a7f48aa245e))
+* improve Python bindings and add comprehensive tests ([63b3d44](https://github.com/dirvine/self_encryption/commit/63b3d447b115b19809ce2db27e7e70af2521232f))
+* mark Boxed Future as Send ([232166d](https://github.com/dirvine/self_encryption/commit/232166d7ab422dbd4bd88ff442d5a722aba4904a))
+* minor clippy fix ([479adba](https://github.com/dirvine/self_encryption/commit/479adbaf350d6a473c0c2558c54fe4afdf4d2989))
+* prevent panics in decrypt_full_set and decrypt_range ([58107d8](https://github.com/dirvine/self_encryption/commit/58107d8f332e03d2f371c33b3bcc5069e79a9f63))
+* remove unwanted file ([b92bace](https://github.com/dirvine/self_encryption/commit/b92bace5c3642f66df916c6ccb89dbb970bdfb66))
+* **benches:** update for min size change ([940f6fe](https://github.com/dirvine/self_encryption/commit/940f6fefb461fa98bd76b125eedb921bc80f749f))
+* **Cargo.toml:** Remove rustc-serialize dependency ([a9baf6b](https://github.com/dirvine/self_encryption/commit/a9baf6bb9bab44ce67530610dc6f9a5eacd27831))
+* **clippy:** fix clippy errors ([7dc38d1](https://github.com/dirvine/self_encryption/commit/7dc38d180c1b715730d6100cf67d13072c5ef1c2))
+* **decrypt:** prevent extra clones while decrypting chunks ([9f77326](https://github.com/dirvine/self_encryption/commit/9f77326bdf477d467ae992478bdc4a795286ef97))
+* **encryption:** fix CBC padding issues in chunk decryption ([84613e8](https://github.com/dirvine/self_encryption/commit/84613e8a84d9a317578e5e02c98f34de1a1c5c37))
+* **range:** allow to pass ranges with length overflowing data length ([919ed53](https://github.com/dirvine/self_encryption/commit/919ed53a4146da30b58ad9483cd98df85d3a4343))
+* **seek:** avoid range out of bounds panic ([fcd56b9](https://github.com/dirvine/self_encryption/commit/fcd56b9e33df2efa1632ef74030301b1a30bdc2f))
+* **seek:** use correct offset ([34f327d](https://github.com/dirvine/self_encryption/commit/34f327df86fce937613ecf33b864517689cf3573))
+* **self_encryptor.rs:** Fix edge case of writing ([f212e88](https://github.com/dirvine/self_encryption/commit/f212e8828cdfd3c519a811bf4c6a9af5e3ccd037))
+* **self_encryptor.rs:** Fix edge cases in truncate logic ([de3ea50](https://github.com/dirvine/self_encryption/commit/de3ea50d5f8131c557c0bfe4ec3cd92c11989b5a))
+* **self_encryptor.rs:** Requested Changes from the review ([993b524](https://github.com/dirvine/self_encryption/commit/993b524e0d8c01d537ef9960e5e711b612653e7d))
+* **self_encryptor.rs:** Set IV to second half of last chunk hash ([61852dc](https://github.com/dirvine/self_encryption/commit/61852dcb73240fd6ce91dd412c269740166f607c))
+* **tests/lib.rs:** Make different data size for 32 and 64 bit binaries ([c6e5ca1](https://github.com/dirvine/self_encryption/commit/c6e5ca121f577b824539cb7cc8e6e84f1ea5e7ed))
+* **writes:** process network writes in parallel ([4974a95](https://github.com/dirvine/self_encryption/commit/4974a95d7117e796aafcc973124c3033b4c5fb04))
+
+
+### update
+
+* **deps:** update deps flagged by security audit ([df8f2ac](https://github.com/dirvine/self_encryption/commit/df8f2ac3cd048706d5237f10f1d08d97d4f6ea59))
+
+
+* remove usage of Box<PathBuf> ([2a88d98](https://github.com/dirvine/self_encryption/commit/2a88d98acd51e0cebcc2c2d09287041354a0cf68))
+* rename secretkey to datamap ([75f4131](https://github.com/dirvine/self_encryption/commit/75f41311c2b3c562826f3646792774d4fbc9a728))
+* **docs:** add explainer for IV and Pad. ([2d56d1a](https://github.com/dirvine/self_encryption/commit/2d56d1a9a7999b562e59934a1e825a4a05e0dfa4))
+* **self_encryptor.rs:** Use Err inplace of panic! and expect ([a4cae07](https://github.com/dirvine/self_encryption/commit/a4cae07a1ff530c987513e5bba937c31e5c64d55))
+* **test/lib.rs:** Add more crossplatform tests ([136be7f](https://github.com/dirvine/self_encryption/commit/136be7fd58b7a23c4522244938492c44c7b27b25))
+* **tokio:** upgrading to v1.3.0 ([640593b](https://github.com/dirvine/self_encryption/commit/640593b1fbbe3d8f67c2ae730584ddbf6060703c))
+
 ### [0.29.2](https://github.com/maidsafe/self_encryption/compare/v0.29.1...v0.29.2) (2024-04-22)
 
 ### [0.29.1](https://github.com/maidsafe/self_encryption/compare/v0.29.0...v0.29.1) (2024-01-24)
