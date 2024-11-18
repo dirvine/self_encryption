@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.31.1](https://github.com/dirvine/self_encryption/compare/v0.31.0...v0.31.1) (2024-11-18)
+
+
+### Features
+
+* **docs:** Add comprehensive Python documentation and docstrings ([cbaa0fd](https://github.com/dirvine/self_encryption/commit/cbaa0fd2854585d0b602cc147a467238036afd60))
+
+
+### Bug Fixes
+
+* clippy ([f3882c1](https://github.com/dirvine/self_encryption/commit/f3882c13463dd051fd3fb99b692268dd7300d9e9))
+* update benchmarks to use public API ([2ba9389](https://github.com/dirvine/self_encryption/commit/2ba9389761efaa56864e1e9d703b37a304444679))
+
 ### [0.29.2](https://github.com/maidsafe/self_encryption/compare/v0.29.1...v0.29.2) (2024-04-22)
 
 ### [0.29.1](https://github.com/maidsafe/self_encryption/compare/v0.29.0...v0.29.1) (2024-01-24)

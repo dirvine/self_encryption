@@ -1,5 +1,5 @@
 [package]
-authors = ["MaidSafe Developers <dev@maidsafe.net>"]
+authors = [ "MaidSafe Developers <dev@maidsafe.net>" ]
 description = "Self encrypting files (convergent encryption plus obfuscation)"
 documentation = "https://docs.rs/self_encryption"
 edition = "2018"
@@ -8,11 +8,11 @@ license = "GPL-3.0"
 name = "self_encryption"
 readme = "README.md"
 repository = "https://github.com/maidsafe/self_encryption"
-version = "0.32.1"
+version = "0.31.1"
 
 [features]
-default = []
-python = ["pyo3/extension-module"]
+default = [ ]
+python = [ "pyo3/extension-module" ]
 
 [dependencies]
 aes = "~0.8.1"
@@ -27,40 +27,44 @@ num_cpus = "1.13.0"
 itertools = "~0.10.0"
 tempfile = "3.6.0"
 xor_name = "5.0.0"
-pyo3 = { version = "0.19", optional = true, features = ["extension-module"] }
 
-[dependencies.brotli]
-version = "~3.3.0"
-default-features = false
-features = ["std"]
+  [dependencies.pyo3]
+  version = "0.19"
+  optional = true
+  features = [ "extension-module" ]
 
-[dependencies.cbc]
-version = "~0.1.1"
-features = ["alloc", "block-padding"]
+  [dependencies.brotli]
+  version = "~3.3.0"
+  default-features = false
+  features = [ "std" ]
 
-[dependencies.bytes]
-version = "1.1.0"
-features = ["serde"]
+  [dependencies.cbc]
+  version = "~0.1.1"
+  features = [ "alloc", "block-padding" ]
 
-[dependencies.serde]
-version = "1.0.136"
-features = ["derive"]
+  [dependencies.bytes]
+  version = "1.1.0"
+  features = [ "serde" ]
 
-[dependencies.tiny-keccak]
-version = "2.0.2"
-features = ["sha3"]
+  [dependencies.serde]
+  version = "1.0.136"
+  features = [ "derive" ]
 
-[dependencies.tokio]
-version = "1.34.0"
-features = ["rt"]
+  [dependencies.tiny-keccak]
+  version = "2.0.2"
+  features = [ "sha3" ]
+
+  [dependencies.tokio]
+  version = "1.34.0"
+  features = [ "rt" ]
 
 [dev-dependencies]
 criterion = "~0.3"
 docopt = "~0.9.0"
 
-[dev-dependencies.tokio]
-version = "1.34.0"
-features = ["rt-multi-thread", "macros"]
+  [dev-dependencies.tokio]
+  version = "1.34.0"
+  features = [ "rt-multi-thread", "macros" ]
 
 [[example]]
 bench = false
@@ -72,4 +76,4 @@ harness = false
 
 [lib]
 name = "self_encryption"
-crate-type = ["cdylib", "rlib"]
+crate-type = [ "cdylib", "rlib" ]
