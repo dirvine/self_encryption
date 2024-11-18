@@ -10,17 +10,8 @@ classifiers = [
     "Programming Language :: Rust",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pip>=24.0",
-    "pytest>=7.4.4",
-]
 
 [tool.maturin]
 features = ["python"]
-module-name = "self_encryption._self_encryption"
+module-name = "_self_encryption"
 bindings = "pyo3"
-develop = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
