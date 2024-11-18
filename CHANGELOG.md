@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.32.3](https://github.com/dirvine/self_encryption/compare/v0.32.2...v0.32.3) (2024-11-18)
+
+
+### Bug Fixes
+
+* python whl ([039b071](https://github.com/dirvine/self_encryption/commit/039b07100e7929ec0690f8fd16258d4f86b5faa8))
+
 ### [0.29.2](https://github.com/maidsafe/self_encryption/compare/v0.29.1...v0.29.2) (2024-04-22)
 
 ### [0.29.1](https://github.com/maidsafe/self_encryption/compare/v0.29.0...v0.29.1) (2024-01-24)
