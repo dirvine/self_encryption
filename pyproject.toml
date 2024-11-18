@@ -15,3 +15,6 @@ classifiers = [
 features = ["python"]
 module-name = "_self_encryption"
 bindings = "pyo3"
+include = ["Cargo.toml", "Cargo.lock", "src/**/*", "README.md", "LICENSE"]
+python-packages = ["self_encryption"]
+wheel-include = ["LICENSE"]
