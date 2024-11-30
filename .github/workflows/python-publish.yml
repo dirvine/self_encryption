@@ -325,49 +325,54 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Create directories
-        run: |
-          mkdir -p dist
-          mkdir -p downloaded
+      - name: Create dist directory
+        run: mkdir -p dist
           
-      - name: Download all artifacts
+      # Download artifacts for each platform and Python version
+      - name: Download Linux artifacts
         uses: actions/download-artifact@v3
         with:
-          path: downloaded
+          pattern: wheels-linux-*
+          path: dist
+          merge-multiple: true
           
-      - name: Debug and prepare artifacts
+      - name: Download MacOS artifacts
+        uses: actions/download-artifact@v3
+        with:
+          pattern: wheels-macos-*
+          path: dist
+          merge-multiple: true
+          
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v3
+        with:
+          pattern: wheels-windows-*
+          path: dist
+          merge-multiple: true
+          
+      - name: Download sdist
+        uses: actions/download-artifact@v3
+        with:
+          pattern: wheels-sdist-*
+          path: dist
+          merge-multiple: true
+          
+      - name: Debug dist contents
         run: |
-          echo "Initial downloaded content:"
-          ls -la downloaded/
-          
-          echo "\nProcessing each artifact directory:"
-          for dir in downloaded/*/; do
-            echo "\nProcessing directory: $dir"
-            ls -la "$dir"
-            
-            # Copy any wheel files found
-            find "$dir" -name "*.whl" -exec cp -v {} dist/ \;
-            find "$dir" -name "*.tar.gz" -exec cp -v {} dist/ \;
-            
-            # If there's a dist subdirectory, check there too
-            if [ -d "$dir/dist" ]; then
-              echo "Found dist subdirectory in $dir"
-              find "$dir/dist" -name "*.whl" -exec cp -v {} dist/ \;
-              find "$dir/dist" -name "*.tar.gz" -exec cp -v {} dist/ \;
-            fi
-          done
-          
-          echo "\nFinal contents of dist directory:"
+          echo "Contents of dist directory:"
           ls -la dist/
           
-          # Verify we have files
-          file_count=$(find dist/ -type f | wc -l)
-          echo "Found $file_count distribution files"
+          echo "\nAll wheel files:"
+          find dist -name "*.whl" || echo "No wheel files found"
+          
+          echo "\nAll source distributions:"
+          find dist -name "*.tar.gz" || echo "No source distributions found"
+          
+          file_count=$(find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) | wc -l)
+          echo "\nFound $file_count distribution files"
           
           if [ $file_count -eq 0 ]; then
             echo "Error: No distribution files found!"
-            echo "Complete directory structure:"
-            find downloaded -type f -ls
             exit 1
           fi
       
