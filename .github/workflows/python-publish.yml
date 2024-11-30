@@ -317,7 +317,7 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
-  release:
+   release:
     name: Release
     runs-on: ubuntu-latest
     needs: [macos, windows, linux, sdist]
@@ -328,18 +328,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: wheels-*
+          name: wheels
           path: dist
-
-      # Add additional steps to download each artifact type
-      - uses: actions/download-artifact@v3
-        with:
-          name: wheels-sdist-py${{ env.PYTHON_VERSION }}
-          path: dist
-
-      # We might need multiple download steps or a different approach
-      # to combine all artifacts
-
       - name: Display structure of downloaded files
         run: ls -R dist
       - name: Publish to PyPI
