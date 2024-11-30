@@ -12,17 +12,12 @@ from pathlib import Path
 from typing import Optional
 import sys
 
-from self_encryption import (
-    DataMap,
-    EncryptedChunk,
-    XorName,
-    encrypt,
+from ._self_encryption import (
+    PyDataMap as DataMap,
+    PyXorName as XorName,
     encrypt_from_file,
-    decrypt,
     decrypt_from_storage,
-    shrink_data_map,
     streaming_decrypt_from_storage,
-    verify_chunk,
 )
 
 def print_error(message: str):
@@ -55,11 +50,9 @@ def encrypt_file(input_file: str, output_dir: str, json: bool):
         $ self-encryption encrypt-file input.dat chunks/
     """
     try:
-        data_map, chunk_names = encrypt_from_file(input_file, output_dir)
-        if json:
-            click.echo(data_map.to_json())
-        else:
-            click.echo(str(data_map))
+        result = encrypt_from_file(input_file, output_dir)
+        data_map = result.data_map
+        click.echo(data_map.to_json())
     except Exception as e:
         print_error(str(e))
         sys.exit(1)
@@ -67,8 +60,8 @@ def encrypt_file(input_file: str, output_dir: str, json: bool):
 @cli.command()
 @click.argument('data-map-file', type=click.Path(exists=True, dir_okay=False))
 @click.argument('chunks-dir', type=click.Path(exists=True, file_okay=False))
-@click.argument('output-file', type=click.Path())
-@click.option('--streaming', is_flag=True, help='Use streaming decryption for large files')
+@click.argument('output-file', type=click.Path(dir_okay=False))
+@click.option('--streaming', is_flag=True, help='Use streaming decryption')
 def decrypt_file(data_map_file: str, chunks_dir: str, output_file: str, streaming: bool):
     """
     Decrypt a file using its data map and stored chunks.
@@ -81,21 +74,17 @@ def decrypt_file(data_map_file: str, chunks_dir: str, output_file: str, streamin
     """
     try:
         # Read data map from file
-        with open(data_map_file, 'r') as f:
-            data_map = DataMap.from_json(f.read())
-        
-        chunks_path = Path(chunks_dir)
-        
-        def get_chunk(hash_hex: str) -> bytes:
-            chunk_path = chunks_path / hash_hex
-            if not chunk_path.exists():
-                raise click.ClickException(f"Chunk not found: {hash_hex}")
-            return chunk_path.read_bytes()
+        data_map_str = Path(data_map_file).read_text()
+        try:
+            data_map = DataMap.from_json(data_map_str)
+        except Exception as e:
+            print_error(f"Failed to parse data map: {e}")
+            sys.exit(1)
         
         if streaming:
-            streaming_decrypt_from_storage(data_map, output_file, get_chunk)
+            streaming_decrypt_from_storage(data_map, output_file, chunks_dir)
         else:
-            decrypt_from_storage(data_map, output_file, get_chunk)
+            decrypt_from_storage(data_map, output_file, chunks_dir)
             
     except Exception as e:
         print_error(str(e))

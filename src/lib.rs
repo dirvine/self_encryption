@@ -68,9 +68,8 @@
     unused_comparisons,
     unused_features,
     unused_parens,
-    while_true,
-    warnings
 )]
+#![cfg_attr(not(feature = "python"), deny(warnings))]
 #![warn(
     trivial_casts,
     trivial_numeric_casts,
@@ -120,7 +119,7 @@ pub use bytes;
 pub use xor_name;
 
 /// The minimum size (before compression) of data to be self-encrypted, defined as 3B.
-pub const MIN_ENCRYPTABLE_BYTES: usize = 3 * MIN_CHUNK_SIZE;
+pub const MIN_ENCRYPTABLE_BYTES: usize = 3;
 /// The default maximum size (before compression) of an individual chunk of a file, defaulting as 1MiB.
 const DEFAULT_MAX_CHUNK_SIZE: usize = 1024 * 1024;
 
@@ -532,7 +531,7 @@ where
 
     // Create a buffered reader with a reasonable buffer size
     let mut reader = BufReader::with_capacity(1024 * 1024, file);
-    
+
     // Read all chunks first to get their hashes
     let mut chunks = Vec::with_capacity(num_chunks);
     for chunk_index in 0..num_chunks {
@@ -540,7 +539,7 @@ where
         let chunk_size = end - start;
         let mut chunk_data = vec![0u8; chunk_size];
         reader.read_exact(&mut chunk_data)?;
-        
+
         let hash = XorName::from_content(&chunk_data);
         chunks.push(crate::chunk::RawChunk {
             index: chunk_index,
@@ -548,15 +547,20 @@ where
             hash,
         });
     }
-    
-    // Process chunks in the correct order
-    let (data_map, encrypted_chunks) = encrypt::encrypt_stream(chunks)?;
-    
-    // Store all encrypted chunks
-    for chunk in encrypted_chunks {
-        chunk_store(XorName::from_content(&chunk.content), chunk.content)?;
+
+    // Process chunks and store them immediately
+    let data_map = encrypt::encrypt_stream(chunks.clone())?;
+
+    // Now encrypt and store each chunk
+    let src_hashes: Vec<_> = chunks.iter().map(|c| c.hash).collect();
+
+    for chunk in chunks {
+        let pki = get_pad_key_and_iv(chunk.index, &src_hashes);
+        let encrypted_content = encrypt::encrypt_chunk(chunk.data, pki)?;
+        let hash = XorName::from_content(&encrypted_content);
+        chunk_store(hash, encrypted_content)?;
     }
-    
+
     // Shrink the data map and store additional chunks if needed
     let (shrunk_data_map, _) = shrink_data_map(data_map, |hash, content| {
         chunk_store(hash, content)?;
@@ -619,10 +623,7 @@ where
             .iter()
             .map(|info| {
                 let content = chunk_cache.get(&info.dst_hash).ok_or_else(|| {
-                    Error::Generic(format!(
-                        "Chunk not found for hash: {:?}",
-                        info.dst_hash
-                    ))
+                    Error::Generic(format!("Chunk not found for hash: {:?}", info.dst_hash))
                 })?;
                 Ok(EncryptedChunk {
                     content: content.clone(),
@@ -751,10 +752,10 @@ mod tests {
         std::fs::write(&file_path, small_data)?;
 
         let store = |_: XorName, _: Bytes| -> Result<()> { Ok(()) };
-        
+
         let result = streaming_encrypt_from_file(&file_path, store);
         assert!(result.is_err());
-        
+
         Ok(())
     }
 
@@ -768,7 +769,7 @@ mod tests {
 
         let storage = Arc::new(Mutex::new(HashMap::new()));
         let storage_clone = storage.clone();
-        
+
         let store = move |hash: XorName, content: Bytes| -> Result<()> {
             let _ = storage_clone.lock().unwrap().insert(hash, content.to_vec());
             Ok(())
@@ -776,7 +777,7 @@ mod tests {
 
         let data_map = streaming_encrypt_from_file(&file_path, store)?;
         assert!(data_map.chunk_identifiers.len() >= 3);
-        
+
         Ok(())
     }
 
@@ -792,7 +793,7 @@ mod tests {
 
         let storage = Arc::new(Mutex::new(HashMap::new()));
         let storage_clone = storage.clone();
-        
+
         let store = move |hash: XorName, content: Bytes| -> Result<()> {
             let _ = storage_clone.lock().unwrap().insert(hash, content.to_vec());
             Ok(())
@@ -801,16 +802,22 @@ mod tests {
         // First get the number of chunks directly
         let bytes = Bytes::from(large_data.clone());
         let (num_chunks, _) = chunk::batch_chunks(bytes);
-        assert!(num_chunks > 3, 
-            "Should have more than 3 chunks before shrinking. Got: {}", num_chunks);
+        assert!(
+            num_chunks > 3,
+            "Should have more than 3 chunks before shrinking. Got: {}",
+            num_chunks
+        );
 
         // Now test the streaming encryption
         let data_map = streaming_encrypt_from_file(&file_path, store)?;
-        
+
         // After shrinking, should be exactly 3 chunks
-        assert_eq!(data_map.chunk_identifiers.len(), 3, 
-            "Final data map should have exactly 3 chunks after shrinking");
-        
+        assert_eq!(
+            data_map.chunk_identifiers.len(),
+            3,
+            "Final data map should have exactly 3 chunks after shrinking"
+        );
+
         // Verify chunk indices are sequential
         let mut prev_index = None;
         for chunk_info in &data_map.chunk_identifiers {
@@ -819,7 +826,7 @@ mod tests {
             }
             prev_index = Some(chunk_info.index);
         }
-        
+
         Ok(())
     }
 
@@ -846,7 +853,7 @@ mod tests {
 
         let result = streaming_encrypt_from_file(&file_path, store);
         assert!(result.is_err());
-        
+
         Ok(())
     }
 
@@ -860,7 +867,7 @@ mod tests {
 
         let storage = Arc::new(Mutex::new(HashMap::new()));
         let storage_clone = storage.clone();
-        
+
         let store = move |hash: XorName, content: Bytes| -> Result<()> {
             let _ = storage_clone.lock().unwrap().insert(hash, content.to_vec());
             Ok(())
@@ -868,7 +875,7 @@ mod tests {
 
         // Encrypt the file
         let data_map = streaming_encrypt_from_file(&file_path, store)?;
-        
+
         // Convert stored chunks to EncryptedChunk format
         let stored = storage.lock().unwrap();
         let encrypted_chunks: Vec<_> = stored
@@ -881,7 +888,7 @@ mod tests {
         // Decrypt and verify
         let decrypted = decrypt(&data_map, &encrypted_chunks)?;
         assert_eq!(&original_data[..], &decrypted[..]);
-        
+
         Ok(())
     }
 
@@ -916,10 +923,11 @@ mod tests {
 
         // Create a very large data map (12 chunks)
         let original_map = create_dummy_data_map(100000);
-        let (shrunk_map, _shrink_chunks) = shrink_data_map(original_map.clone(), |hash, content| {
-            let _ = storage_clone.lock().unwrap().insert(hash, content);
-            Ok(())
-        })?;
+        let (shrunk_map, _shrink_chunks) =
+            shrink_data_map(original_map.clone(), |hash, content| {
+                let _ = storage_clone.lock().unwrap().insert(hash, content);
+                Ok(())
+            })?;
 
         // Verify multiple levels of shrinking occurred
         assert!(shrunk_map.child().unwrap() > 0);
@@ -929,6 +937,78 @@ mod tests {
 
         // Verify the root map matches the original
         assert!(!root_map.is_child());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_encryption_algorithm_consistency() -> Result<()> {
+        // Create deterministic test data
+        let test_data = vec![42u8; MIN_ENCRYPTABLE_BYTES * 2]; // Repeating value for predictability
+
+        // First encryption
+        let storage1 = Arc::new(Mutex::new(HashMap::new()));
+        let storage1_clone = storage1.clone();
+
+        let store1 = move |hash: XorName, content: Bytes| -> Result<()> {
+            let _ = storage1_clone
+                .lock()
+                .unwrap()
+                .insert(hash, content.to_vec());
+            Ok(())
+        };
+
+        // Second encryption
+        let storage2 = Arc::new(Mutex::new(HashMap::new()));
+        let storage2_clone = storage2.clone();
+
+        let store2 = move |hash: XorName, content: Bytes| -> Result<()> {
+            let _ = storage2_clone
+                .lock()
+                .unwrap()
+                .insert(hash, content.to_vec());
+            Ok(())
+        };
+
+        // Create temporary files with same content
+        let temp_dir = tempfile::TempDir::new()?;
+        let file_path1 = temp_dir.path().join("test1.bin");
+        let file_path2 = temp_dir.path().join("test2.bin");
+
+        std::fs::write(&file_path1, &test_data)?;
+        std::fs::write(&file_path2, &test_data)?;
+
+        // Encrypt same data twice
+        let data_map1 = streaming_encrypt_from_file(&file_path1, store1)?;
+        let data_map2 = streaming_encrypt_from_file(&file_path2, store2)?;
+
+        // Compare data maps
+        assert_eq!(
+            data_map1.chunk_identifiers.len(),
+            data_map2.chunk_identifiers.len(),
+            "Data maps should have same number of chunks"
+        );
+
+        // Compare stored chunks
+        let stored1 = storage1.lock().unwrap();
+        let stored2 = storage2.lock().unwrap();
+
+        assert_eq!(
+            stored1.len(),
+            stored2.len(),
+            "Should have same number of stored chunks"
+        );
+
+        // Compare each chunk's content
+        for (hash, content1) in stored1.iter() {
+            let content2 = stored2
+                .get(hash)
+                .expect("Chunk should exist in both storages");
+            assert_eq!(
+                content1, content2,
+                "Encrypted chunks should be identical for same input"
+            );
+        }
 
         Ok(())
     }
