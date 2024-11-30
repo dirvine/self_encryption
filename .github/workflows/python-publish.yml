@@ -91,20 +91,78 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: auto
           args: --release --out dist -i python${{ matrix.python-version }}
-      - name: Debug dist directory
+      - name: Install built wheel
+        if: matrix.target == 'x86_64'
         run: |
-          echo "Contents of dist directory:"
+          # List all wheels to debug
+          echo "Available wheels:"
           ls -la dist/
-          echo "Full path of dist directory:"
-          pwd
-          echo "Total files in dist:"
-          find dist -type f | wc -l
+          
+          pip install -U pip pytest click>=8.0.0
+          pip install --find-links dist/ ${{ env.PACKAGE_NAME }}
+          pytest -v
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.target }}-py${{ matrix.python-version }}
-          path: dist/*
-          if-no-files-found: error
+          path: dist
+
+  # linux-cross:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       target: [aarch64, armv7, s390x, ppc64le, ppc64]
+  #       python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Build wheels
+  #       uses: PyO3/maturin-action@v1
+  #       env:
+  #         PYO3_CROSS_PYTHON_VERSION: ${{ matrix.python-version }}
+  #         PYO3_CROSS: "1"
+  #         PYTHON_VERSION: ${{ matrix.python-version }}
+  #       with:
+  #         target: ${{ matrix.target }}
+  #         manylinux: auto
+  #         args: --release --out dist -i python${{ matrix.python-version }}
+  #         sccache: 'true'
+  #         docker-options: >-
+  #           --platform ${{ matrix.target == 'armv7' && 'linux/arm/v7' || 
+  #                         matrix.target == 'aarch64' && 'linux/arm64' || 
+  #                         matrix.target == 's390x' && 'linux/s390x' || 
+  #                         matrix.target == 'ppc64le' && 'linux/ppc64le' || 
+  #                         'linux/amd64' }}
+  #     - uses: uraimo/run-on-arch-action@v2.7.0
+  #       if: matrix.target != 'ppc64'
+  #       name: Install built wheel
+  #       with:
+  #         arch: ${{ matrix.target }}
+  #         distro: ubuntu_latest
+  #         githubToken: ${{ github.token }}
+  #         install: |
+  #           apt-get update
+  #           apt-get install -y --no-install-recommends python3 python3-pip python3-venv
+  #           pip3 install -U pip pytest click>=8.0.0
+  #         run: |
+  #           # List all wheels to debug
+  #           echo "Available wheels:"
+  #           ls -la dist/
+            
+  #           # Install using find-links to handle platform tags correctly
+  #           pip3 install --find-links dist/ ${{ env.PACKAGE_NAME }}
+  #           pytest -v
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-linux-cross-${{ matrix.target }}-py${{ matrix.python-version }}
+  #         path: dist
 
   musllinux:
     runs-on: ubuntu-latest
@@ -168,6 +226,77 @@ jobs:
           name: wheels-musllinux-${{ matrix.target }}-py${{ matrix.python-version }}
           path: dist
 
+  # musllinux-cross:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       platform:
+  #         - target: aarch64-unknown-linux-musl
+  #           arch: aarch64
+  #           platform: linux/arm64
+  #         - target: armv7-unknown-linux-musleabihf
+  #           arch: armv7
+  #           platform: linux/arm/v7
+  #       python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Build wheels
+  #       uses: PyO3/maturin-action@v1
+  #       env:
+  #         PYO3_CROSS_PYTHON_VERSION: ${{ matrix.python-version }}
+  #         PYO3_CROSS: "1"
+  #       with:
+  #         target: ${{ matrix.platform.target }}
+  #         manylinux: musllinux_1_2
+  #         args: --release --out dist -i python${{ matrix.python-version }}
+  #         sccache: 'true'
+  #         docker-options: "--platform ${{ matrix.platform.platform }}"
+  #     - uses: uraimo/run-on-arch-action@master
+  #       name: Install built wheel
+  #       with:
+  #         arch: ${{ matrix.platform.arch }}
+  #         distro: alpine_latest
+  #         githubToken: ${{ github.token }}
+  #         install: |
+  #           apk add --no-cache \
+  #             python3 \
+  #             py3-pip \
+  #             gcc \
+  #             musl-dev \
+  #             python3-dev \
+  #             rust \
+  #             cargo \
+  #             openssl-dev \
+  #             pkgconfig
+  #         run: |
+  #           # Create and activate virtual environment
+  #           python3 -m venv /venv
+  #           . /venv/bin/activate
+
+  #           # Install Python dependencies
+  #           pip install --upgrade pip wheel setuptools
+  #           pip install pytest click>=8.0.0
+
+  #           # Install in development mode
+  #           cd /io
+  #           pip install -e .
+
+  #           # Run tests
+  #           python -m pytest -v
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-musllinux-cross-${{ matrix.platform.target }}-py${{ matrix.python-version }}
+  #         path: dist
+
+
   sdist:
     runs-on: ubuntu-latest
     # Add permissions to job
@@ -196,36 +325,39 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Create dist directory
-        run: mkdir -p dist
-      
-      # Download each type of artifact explicitly
+      - name: Create directories
+        run: |
+          mkdir -p dist
+          mkdir -p downloaded
+          
       - uses: actions/download-artifact@v3
         with:
           path: downloaded
           
-      - name: Debug downloaded artifacts
-        run: |
-          echo "Contents of downloaded directory:"
-          ls -R downloaded/
-          
       - name: Prepare artifacts for release
         run: |
-          # Move all wheels and tarballs to dist directory
+          echo "Unzipping and collecting artifacts..."
+          
+          # Debug: Show what was downloaded
+          echo "Downloaded artifacts:"
+          ls -la downloaded/
+          
+          # Move all wheel files and source distributions to dist/
           find downloaded -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec cp -v {} dist/ \;
           
           echo "Final contents of dist directory:"
           ls -la dist/
           
-          echo "Number of distribution files:"
-          find dist/ -type f | wc -l
-          
-          if [ $(find dist/ -type f | wc -l) -eq 0 ]; then
-            echo "Error: No distribution files found!"
+          # Verify we have files to publish
+          file_count=$(find dist/ -type f | wc -l)
+          echo "Found $file_count distribution files"
+          if [ $file_count -eq 0 ]; then
+            echo "Error: No distribution files found in dist/"
             exit 1
           fi
-          
+      
       - name: Publish to PyPI
+        if: success()
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
