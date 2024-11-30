@@ -327,48 +327,70 @@ jobs:
       id-token: write
       contents: read
     steps:
-      # Add a small delay to ensure artifacts are available
-      - name: Wait for artifacts
-        run: sleep 15
-
       - name: Create dist directory
         run: mkdir -p dist
 
-      # Try to download specific artifacts we know exist
-      - name: Download Linux artifacts
+      # List artifacts using GitHub API
+      - name: List artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Available artifacts:"
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
+            --jq '.artifacts[].name'
+
+      # Download artifacts using multiple attempts
+      - name: Download Linux x86_64 artifacts
         uses: actions/download-artifact@v3
-        continue-on-error: true
         with:
           name: wheels-linux-x86_64-py3.8
           path: dist
-
-      - name: Download Linux artifacts (3.9)
-        uses: actions/download-artifact@v3
         continue-on-error: true
-        with:
-          name: wheels-linux-x86_64-py3.9
-          path: dist
 
-      - name: Debug downloaded content
+      - name: Download Linux i686 artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-linux-i686-py3.8
+          path: dist
+        continue-on-error: true
+
+      - name: Download sdist
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-sdist-py3.10
+          path: dist
+        continue-on-error: true
+
+      # Add debugging information
+      - name: Debug artifact contents
         run: |
-          echo "Current directory structure:"
-          ls -la
+          echo "Current working directory:"
+          pwd
+          
+          echo "\nAll files in current directory:"
+          find . -type f
           
           echo "\nDist directory contents:"
           ls -la dist/
           
-          echo "\nFinding all wheel files:"
-          find . -name "*.whl" || echo "No wheel files found"
+          echo "\nAll wheel files:"
+          find dist -name "*.whl" || echo "No wheel files found"
           
-          echo "\nFinding all tar.gz files:"
-          find . -name "*.tar.gz" || echo "No tar.gz files found"
+          echo "\nAll source distributions:"
+          find dist -name "*.tar.gz" || echo "No source distributions found"
           
-          # List all available artifacts
-          echo "\nListing all artifacts in the workflow:"
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
+          # Count files
+          wheel_count=$(find dist -name "*.whl" | wc -l)
+          sdist_count=$(find dist -name "*.tar.gz" | wc -l)
+          echo "\nFound $wheel_count wheel files and $sdist_count source distributions"
+          
+          if [ $wheel_count -eq 0 ] && [ $sdist_count -eq 0 ]; then
+            echo "Error: No distribution files found!"
+            exit 1
+          fi
 
       - name: Publish to PyPI
         if: success()
