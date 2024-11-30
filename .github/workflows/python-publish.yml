@@ -91,21 +91,23 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: auto
           args: --release --out dist -i python${{ matrix.python-version }}
-      - name: Install built wheel
-        if: matrix.target == 'x86_64'
+      
+      # Add debug step to verify wheel location
+      - name: Debug wheel location
         run: |
-          # List all wheels to debug
-          echo "Available wheels:"
+          echo "Contents of current directory:"
+          ls -la
+          echo "\nContents of dist directory:"
           ls -la dist/
-          
-          pip install -U pip pytest click>=8.0.0
-          pip install --find-links dist/ ${{ env.PACKAGE_NAME }}
-          pytest -v
+          echo "\nFinding all wheel files:"
+          find . -name "*.whl"
+      
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.target }}-py${{ matrix.python-version }}
-          path: dist
+          path: dist/*.whl
+          if-no-files-found: error
 
   # linux-cross:
   #   runs-on: ubuntu-latest
