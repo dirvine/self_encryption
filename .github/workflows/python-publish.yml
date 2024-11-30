@@ -328,10 +328,23 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Prepare artifacts for release
         run: |
+          # Create dist directory
           mkdir -p dist/
-          find . -name '*.whl' -o -name '*.tar.gz' -exec mv {} dist/ \;
-      - name: Display structure of downloaded files
-        run: ls -R dist
+          
+          # Debug: Show current directory structure before moving files
+          echo "Current directory structure:"
+          ls -R
+          
+          # Move all wheel files and source distributions to dist/
+          find . -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv -v {} dist/ \;
+          
+          # Debug: Show contents of dist directory
+          echo "Contents of dist directory:"
+          ls -la dist/
+          
+          # Count files in dist directory
+          echo "Number of distribution files:"
+          find dist/ -type f | wc -l
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
