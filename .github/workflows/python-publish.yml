@@ -330,42 +330,44 @@ jobs:
           mkdir -p dist
           mkdir -p downloaded
           
-      # Download artifacts explicitly
-      - uses: actions/download-artifact@v3
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
         with:
           path: downloaded
           
-      - name: Prepare artifacts for release
-        shell: bash
+      - name: Debug and prepare artifacts
         run: |
-          echo "Debug: Showing all downloaded content"
-          find downloaded -type f
+          echo "Initial downloaded content:"
+          ls -la downloaded/
           
-          echo "Moving artifacts to dist directory..."
-          # First, try to find wheels directly
-          find downloaded -type f -name "*.whl" -exec cp -v {} dist/ \;
-          find downloaded -type f -name "*.tar.gz" -exec cp -v {} dist/ \;
-          
-          # If no files found, check inside possible subdirectories
-          if [ ! "$(ls -A dist)" ]; then
-            echo "No files found directly, checking in subdirectories..."
-            find downloaded -type f -name "dist" -exec ls -R {} \;
+          echo "\nProcessing each artifact directory:"
+          for dir in downloaded/*/; do
+            echo "\nProcessing directory: $dir"
+            ls -la "$dir"
             
-            # Try to find wheels in nested dist directories
-            find downloaded -type f -path "*/dist/*.whl" -exec cp -v {} dist/ \;
-            find downloaded -type f -path "*/dist/*.tar.gz" -exec cp -v {} dist/ \;
-          fi
+            # Copy any wheel files found
+            find "$dir" -name "*.whl" -exec cp -v {} dist/ \;
+            find "$dir" -name "*.tar.gz" -exec cp -v {} dist/ \;
+            
+            # If there's a dist subdirectory, check there too
+            if [ -d "$dir/dist" ]; then
+              echo "Found dist subdirectory in $dir"
+              find "$dir/dist" -name "*.whl" -exec cp -v {} dist/ \;
+              find "$dir/dist" -name "*.tar.gz" -exec cp -v {} dist/ \;
+            fi
+          done
           
-          echo "Final contents of dist directory:"
+          echo "\nFinal contents of dist directory:"
           ls -la dist/
           
-          # Verify we have files to publish
+          # Verify we have files
           file_count=$(find dist/ -type f | wc -l)
           echo "Found $file_count distribution files"
+          
           if [ $file_count -eq 0 ]; then
-            echo "Error: No distribution files found in dist/"
-            echo "Full directory structure:"
-            find downloaded -type f
+            echo "Error: No distribution files found!"
+            echo "Complete directory structure:"
+            find downloaded -type f -ls
             exit 1
           fi
       
