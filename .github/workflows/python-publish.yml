@@ -317,7 +317,7 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
-   release:
+  release:
     name: Release
     runs-on: ubuntu-latest
     needs: [macos, windows, linux, sdist]
