@@ -330,20 +330,31 @@ jobs:
           mkdir -p dist
           mkdir -p downloaded
           
+      # Download artifacts explicitly
       - uses: actions/download-artifact@v3
         with:
           path: downloaded
           
       - name: Prepare artifacts for release
+        shell: bash
         run: |
-          echo "Unzipping and collecting artifacts..."
+          echo "Debug: Showing all downloaded content"
+          find downloaded -type f
           
-          # Debug: Show what was downloaded
-          echo "Downloaded artifacts:"
-          ls -la downloaded/
+          echo "Moving artifacts to dist directory..."
+          # First, try to find wheels directly
+          find downloaded -type f -name "*.whl" -exec cp -v {} dist/ \;
+          find downloaded -type f -name "*.tar.gz" -exec cp -v {} dist/ \;
           
-          # Move all wheel files and source distributions to dist/
-          find downloaded -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec cp -v {} dist/ \;
+          # If no files found, check inside possible subdirectories
+          if [ ! "$(ls -A dist)" ]; then
+            echo "No files found directly, checking in subdirectories..."
+            find downloaded -type f -name "dist" -exec ls -R {} \;
+            
+            # Try to find wheels in nested dist directories
+            find downloaded -type f -path "*/dist/*.whl" -exec cp -v {} dist/ \;
+            find downloaded -type f -path "*/dist/*.tar.gz" -exec cp -v {} dist/ \;
+          fi
           
           echo "Final contents of dist directory:"
           ls -la dist/
@@ -353,6 +364,8 @@ jobs:
           echo "Found $file_count distribution files"
           if [ $file_count -eq 0 ]; then
             echo "Error: No distribution files found in dist/"
+            echo "Full directory structure:"
+            find downloaded -type f
             exit 1
           fi
       
