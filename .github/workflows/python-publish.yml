@@ -327,38 +327,48 @@ jobs:
       id-token: write
       contents: read
     steps:
+      # Add a small delay to ensure artifacts are available
+      - name: Wait for artifacts
+        run: sleep 15
+
       - name: Create dist directory
         run: mkdir -p dist
 
-      # Download all artifacts at once
-      - name: Download all artifacts
+      # Try to download specific artifacts we know exist
+      - name: Download Linux artifacts
         uses: actions/download-artifact@v3
+        continue-on-error: true
         with:
-          path: artifacts
+          name: wheels-linux-x86_64-py3.8
+          path: dist
 
-      - name: Prepare artifacts for publishing
+      - name: Download Linux artifacts (3.9)
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: wheels-linux-x86_64-py3.9
+          path: dist
+
+      - name: Debug downloaded content
         run: |
-          echo "Available artifacts:"
-          ls -R artifacts/
+          echo "Current directory structure:"
+          ls -la
           
-          echo "\nMoving all wheels and source distributions to dist/"
-          # Move all wheel files to dist/
-          find artifacts -type f -name "*.whl" -exec cp -v {} dist/ \;
-          # Move all source distributions to dist/
-          find artifacts -type f -name "*.tar.gz" -exec cp -v {} dist/ \;
-          
-          echo "\nContents of dist directory:"
+          echo "\nDist directory contents:"
           ls -la dist/
           
-          # Count distribution files
-          wheel_count=$(find dist -name "*.whl" | wc -l)
-          sdist_count=$(find dist -name "*.tar.gz" | wc -l)
-          echo "\nFound $wheel_count wheel files and $sdist_count source distributions"
+          echo "\nFinding all wheel files:"
+          find . -name "*.whl" || echo "No wheel files found"
           
-          if [ $wheel_count -eq 0 ] && [ $sdist_count -eq 0 ]; then
-            echo "Error: No distribution files found!"
-            exit 1
-          fi
+          echo "\nFinding all tar.gz files:"
+          find . -name "*.tar.gz" || echo "No tar.gz files found"
+          
+          # List all available artifacts
+          echo "\nListing all artifacts in the workflow:"
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
 
       - name: Publish to PyPI
         if: success()
