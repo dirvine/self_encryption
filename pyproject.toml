@@ -5,33 +5,20 @@ build-backend = "maturin"
 
 [project]
 name = "self_encryption"
-version = "0.32.4"
-description = "Self encrypting files (convergent encryption plus obfuscation)"
-authors = [
-    {name = "MaidSafe Developers", email = "dev@maidsafe.net"}
-]
-requires-python = ">=3.8"
-license = {text = "GPL-3.0"}
+dynamic = ["version"]
+description = "Python bindings for self-encryption library"
+authors = [{ name = "David Irvine", email = "david.irvine@maidsafe.net" }]
+requires-python = ">=3.7"
 classifiers = [
+    "Programming Language :: Python :: 3",
     "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-]
-dependencies = [
-    "click>=8.0.0",
-    "pip>=24.3.1",
+    "Operating System :: OS Independent",
 ]
 
 [tool.maturin]
 features = ["python"]
-module-name = "self_encryption._self_encryption"
-python-packages = ["self_encryption"]
-include = ["self_encryption/**/*"]
-manifest-path = "Cargo.toml"
+module-name = "self_encryption"
 
-[project.scripts]
-self-encryption = "self_encryption.cli:cli"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
