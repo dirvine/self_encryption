@@ -185,7 +185,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: [macos, windows, linux, sdist]
+    needs: [macos, windows, linux, musllinux, sdist]
     # Keep existing permissions
     permissions:
       id-token: write
