@@ -30,12 +30,12 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist
+          args: --release --out dist -i python${{ matrix.python-version }}
           sccache: 'true'
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-macos-${{ matrix.target }}-py${{ matrix.python-version }}
           path: dist/*.whl
           if-no-files-found: error
 
@@ -69,34 +69,29 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
-    # Add permissions to job
-    permissions:
-      id-token: write
-      contents: read
     strategy:
       matrix:
+        target: [x86_64, i686]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        target: [x86_64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --user cffi
-          python -m pip install --user patchelf
+          architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
         with:
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist
+          args: --release --out dist -i python${{ matrix.python-version }}
           sccache: 'true'
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-linux-${{ matrix.target }}-py${{ matrix.python-version }}
           path: dist/*.whl
           if-no-files-found: error
 
@@ -123,45 +118,14 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
           args: --release --out dist -i python${{ matrix.python-version }}
-      - name: Install built wheel
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        uses: addnab/docker-run-action@v3
-        with:
-          image: alpine:latest
-          options: -v ${{ github.workspace }}:/io -w /io
-          run: |
-            # Install system dependencies
-            apk add --no-cache \
-              python3 \
-              py3-pip \
-              gcc \
-              musl-dev \
-              python3-dev \
-              rust \
-              cargo \
-              openssl-dev \
-              pkgconfig
-
-            # Create and activate virtual environment
-            python3 -m venv /venv
-            . /venv/bin/activate
-
-            # Install Python dependencies
-            pip install --upgrade pip wheel setuptools
-            pip install pytest click>=8.0.0
-
-            # Install in development mode
-            cd /io
-            pip install -e .
-
-            # Run tests
-            python -m pytest -v
+          sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-musllinux-${{ matrix.target }}-py${{ matrix.python-version }}
-          path: dist
-          
+          path: dist/*.whl
+          if-no-files-found: error
+
   sdist:
     runs-on: ubuntu-latest
     # Add permissions to job
