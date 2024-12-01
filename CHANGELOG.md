@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.32.2](https://github.com/dirvine/self_encryption/compare/v0.32.1...v0.32.2) (2024-12-01)
+
+
+### Features
+
+* upgrade python bindings ([4cf23e8](https://github.com/dirvine/self_encryption/commit/4cf23e830b97cc8f4f5a4655be0a19ded62ba1b6))
+* **python:** Add streaming encryption and update documentation ([1714681](https://github.com/dirvine/self_encryption/commit/1714681f688813d59426d1756232c7b1d7b704db))
+* inital commit of functor based encrypt ([4034ef3](https://github.com/dirvine/self_encryption/commit/4034ef3ec3fe2ccbb2e530178e319c962614e19f))
+* **docs:** enhance Python bindings documentation and CLI ([b0ca5e5](https://github.com/dirvine/self_encryption/commit/b0ca5e51e4f33b7ecb5b7beb142a1818b3bf5d21))
+* patch bump ([87f5593](https://github.com/dirvine/self_encryption/commit/87f55930f23aaee8fb6b554bfbf432cf0d1debb4))
+* **cli:** Add command-line interface for self-encryption ([1994b1a](https://github.com/dirvine/self_encryption/commit/1994b1a0353eecd8ead3545b358261b7d03c50cc))
+
+
+### Bug Fixes
+
+* python publish workflow ([a08c43b](https://github.com/dirvine/self_encryption/commit/a08c43b0fafd35e77de3379ed20a3c9005f2e834))
+
 ### [0.29.2](https://github.com/maidsafe/self_encryption/compare/v0.29.1...v0.29.2) (2024-04-22)
 
 ### [0.29.1](https://github.com/maidsafe/self_encryption/compare/v0.29.0...v0.29.1) (2024-01-24)
