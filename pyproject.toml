@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin==1.7.5"]
+requires = ["maturin>=1.4,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -7,14 +7,19 @@ name = "self_encryption"
 dynamic = ["version"]
 description = "Python bindings for self-encryption library"
 authors = [{ name = "David Irvine", email = "david.irvine@maidsafe.net" }]
-requires-python = ">=3.7"
+requires-python = ">=3.7,<3.13"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Rust",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "maturin>=1.7.8",
+    "maturin>=1.4,<2.0",
     "pip>=24.0",
 ]
 
@@ -22,6 +27,7 @@ dependencies = [
 features = ["python"]
 module-name = "self_encryption"
 bindings = "pyo3"
+environment = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

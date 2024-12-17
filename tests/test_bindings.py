@@ -1,8 +1,8 @@
 import os
 import tempfile
 from self_encryption import (
-    DataMap, 
-    EncryptedChunk,
+    PyDataMap as DataMap,
+    PyEncryptedChunk as EncryptedChunk,
     encrypt_bytes,
     decrypt_chunks,
     encrypt_file,
