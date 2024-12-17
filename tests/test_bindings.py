@@ -7,8 +7,8 @@ from self_encryption import (
     decrypt_chunks,
     encrypt_file,
     decrypt_from_files,
-    py_shrink_data_map,
-    py_get_root_data_map
+    shrink_data_map,
+    get_root_data_map
 )
 
 def test_basic_encryption():
@@ -57,10 +57,10 @@ def test_data_map_operations():
         data_map, _ = encrypt_file(input_path, chunk_dir)
 
         # Test shrinking
-        shrunk_map = py_shrink_data_map(data_map, chunk_dir)
+        shrunk_map = shrink_data_map(data_map, chunk_dir)
         
         # Test getting root map
-        root_map = py_get_root_data_map(shrunk_map, chunk_dir)
+        root_map = get_root_data_map(shrunk_map, chunk_dir)
 
         # Verify we can still decrypt using root map
         output_path = os.path.join(temp_dir, "output.txt")

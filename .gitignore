@@ -12,3 +12,6 @@ target/
 *.sublime-*
 /bin/
 .DS_Store
+*pyc
+*so
+publish

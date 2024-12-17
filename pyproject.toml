@@ -1,5 +1,6 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
+# requires = ["maturin>=1.0,<2.0"] # TODO: remove this once twine can handle metadata 2.4
+requires = ["maturin==1.7.5"]
 build-backend = "maturin"
 
 [project]
@@ -13,10 +14,15 @@ classifiers = [
     "Programming Language :: Rust",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "maturin>=1.7.8",
+    "pip>=24.0",
+]
 
 [tool.maturin]
 features = ["python"]
-module-name = "self_encryption"
+python-source = "python"
+module-name = "self_encryption._rust"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
