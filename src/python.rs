@@ -44,8 +44,7 @@ impl PyDataMap {
     }
 
     fn serialize(&self) -> PyResult<Vec<u8>> {
-        bincode::serialize(&self.inner)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        bincode::serialize(&self.inner).map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
     }
 
     #[staticmethod]
@@ -68,22 +67,18 @@ impl PyStreamSelfEncryptor {
         let chunk_dir = chunk_dir.map(PathBuf::from);
         let inner = StreamSelfEncryptor::encrypt_from_file(PathBuf::from(file_path), chunk_dir)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-
         Ok(PyStreamSelfEncryptor { inner })
     }
 
     fn next_encryption(&mut self) -> PyResult<(Option<PyEncryptedChunk>, Option<PyDataMap>)> {
-        let (chunk, data_map) = self
-            .inner
-            .next_encryption()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-
-        let chunk = chunk.map(|c| PyEncryptedChunk {
-            content: c.content.to_vec(),
-        });
-        let data_map = data_map.map(|dm| PyDataMap { inner: dm });
-
-        Ok((chunk, data_map))
+        match self.inner.next_encryption() {
+            Ok((chunk, map)) => {
+                let chunk = chunk.map(|c| PyEncryptedChunk::new(c.content.to_vec()));
+                let map = map.map(|m| PyDataMap { inner: m });
+                Ok((chunk, map))
+            }
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string())),
+        }
     }
 }
 
@@ -96,20 +91,17 @@ pub struct PyStreamSelfDecryptor {
 impl PyStreamSelfDecryptor {
     #[new]
     fn new(output_path: String, data_map: &PyDataMap) -> PyResult<Self> {
-        let inner =
-            StreamSelfDecryptor::decrypt_to_file(PathBuf::from(output_path), &data_map.inner)
-                .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-
+        let inner = StreamSelfDecryptor::decrypt_to_file(PathBuf::from(output_path), &data_map.inner)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
         Ok(PyStreamSelfDecryptor { inner })
     }
 
     fn next_encrypted(&mut self, chunk: &PyEncryptedChunk) -> PyResult<bool> {
-        let encrypted_chunk = EncryptedChunk {
+        let encrypted = EncryptedChunk {
             content: Bytes::from(chunk.content.clone()),
         };
-
         self.inner
-            .next_encrypted(encrypted_chunk)
+            .next_encrypted(encrypted)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
     }
 }
