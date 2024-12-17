@@ -14,11 +14,26 @@ use crate::{
     StreamSelfDecryptor, StreamSelfEncryptor,
 };
 
-#[pyclass(module = "self_encryption")]
+#[pyclass]
 #[derive(Clone)]
 pub struct PyEncryptedChunk {
     #[pyo3(get)]
     content: Vec<u8>,
+}
+
+#[pyclass]
+pub struct PyDataMap {
+    inner: DataMap,
+}
+
+#[pyclass]
+pub struct PyStreamSelfEncryptor {
+    inner: StreamSelfEncryptor,
+}
+
+#[pyclass]
+pub struct PyStreamSelfDecryptor {
+    inner: StreamSelfDecryptor,
 }
 
 #[pymethods]
@@ -27,11 +42,6 @@ impl PyEncryptedChunk {
     fn new(content: Vec<u8>) -> Self {
         PyEncryptedChunk { content }
     }
-}
-
-#[pyclass(module = "self_encryption")]
-pub struct PyDataMap {
-    inner: DataMap,
 }
 
 #[pymethods]
@@ -55,11 +65,6 @@ impl PyDataMap {
     }
 }
 
-#[pyclass(module = "self_encryption")]
-pub struct PyStreamSelfEncryptor {
-    inner: StreamSelfEncryptor,
-}
-
 #[pymethods]
 impl PyStreamSelfEncryptor {
     #[new]
@@ -80,11 +85,6 @@ impl PyStreamSelfEncryptor {
             Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string())),
         }
     }
-}
-
-#[pyclass(module = "self_encryption")]
-pub struct PyStreamSelfDecryptor {
-    inner: StreamSelfDecryptor,
 }
 
 #[pymethods]
