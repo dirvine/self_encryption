@@ -14,7 +14,7 @@ use crate::{
     StreamSelfDecryptor, StreamSelfEncryptor,
 };
 
-#[pyclass(name = "EncryptedChunk")]
+#[pyclass]
 #[derive(Clone)]
 struct PyEncryptedChunk {
     #[pyo3(get)]
@@ -29,7 +29,7 @@ impl PyEncryptedChunk {
     }
 }
 
-#[pyclass(name = "DataMap")]
+#[pyclass]
 struct PyDataMap {
     inner: DataMap,
 }
@@ -56,7 +56,7 @@ impl PyDataMap {
     }
 }
 
-#[pyclass(name = "StreamSelfEncryptor")]
+#[pyclass]
 struct PyStreamSelfEncryptor {
     inner: StreamSelfEncryptor,
 }
@@ -87,7 +87,7 @@ impl PyStreamSelfEncryptor {
     }
 }
 
-#[pyclass(name = "StreamSelfDecryptor")]
+#[pyclass]
 struct PyStreamSelfDecryptor {
     inner: StreamSelfDecryptor,
 }
