@@ -14,9 +14,9 @@ use crate::{
     StreamSelfDecryptor, StreamSelfEncryptor,
 };
 
-#[pyclass]
+#[pyclass(module = "self_encryption")]
 #[derive(Clone)]
-struct PyEncryptedChunk {
+pub struct PyEncryptedChunk {
     #[pyo3(get)]
     content: Vec<u8>,
 }
@@ -29,8 +29,8 @@ impl PyEncryptedChunk {
     }
 }
 
-#[pyclass]
-struct PyDataMap {
+#[pyclass(module = "self_encryption")]
+pub struct PyDataMap {
     inner: DataMap,
 }
 
@@ -56,8 +56,8 @@ impl PyDataMap {
     }
 }
 
-#[pyclass]
-struct PyStreamSelfEncryptor {
+#[pyclass(module = "self_encryption")]
+pub struct PyStreamSelfEncryptor {
     inner: StreamSelfEncryptor,
 }
 
@@ -87,8 +87,8 @@ impl PyStreamSelfEncryptor {
     }
 }
 
-#[pyclass]
-struct PyStreamSelfDecryptor {
+#[pyclass(module = "self_encryption")]
+pub struct PyStreamSelfDecryptor {
     inner: StreamSelfDecryptor,
 }
 
@@ -115,7 +115,7 @@ impl PyStreamSelfDecryptor {
 }
 
 #[pyfunction]
-fn encrypt_bytes(data: &[u8]) -> PyResult<(PyDataMap, Vec<PyEncryptedChunk>)> {
+pub fn encrypt_bytes(data: &[u8]) -> PyResult<(PyDataMap, Vec<PyEncryptedChunk>)> {
     let (data_map, chunks) = encrypt(Bytes::from(data.to_vec()))
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
@@ -130,7 +130,7 @@ fn encrypt_bytes(data: &[u8]) -> PyResult<(PyDataMap, Vec<PyEncryptedChunk>)> {
 }
 
 #[pyfunction]
-fn decrypt_chunks<'py>(
+pub fn decrypt_chunks<'py>(
     py: Python<'py>,
     data_map: &PyDataMap,
     chunks: Vec<PyEncryptedChunk>,
@@ -149,7 +149,7 @@ fn decrypt_chunks<'py>(
 }
 
 #[pyfunction]
-fn encrypt_file(file_path: String, output_dir: String) -> PyResult<(PyDataMap, Vec<String>)> {
+pub fn encrypt_file(file_path: String, output_dir: String) -> PyResult<(PyDataMap, Vec<String>)> {
     let (data_map, chunk_names) =
         encrypt_from_file(&PathBuf::from(file_path), &PathBuf::from(output_dir))
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
@@ -160,7 +160,7 @@ fn encrypt_file(file_path: String, output_dir: String) -> PyResult<(PyDataMap, V
 }
 
 #[pyfunction]
-fn decrypt_from_files(
+pub fn decrypt_from_files(
     chunk_dir: String,
     data_map: &PyDataMap,
     output_path: String,
@@ -178,7 +178,7 @@ fn decrypt_from_files(
 }
 
 #[pyfunction]
-fn shrink_data_map(data_map: &PyDataMap, chunk_dir: String) -> PyResult<PyDataMap> {
+pub fn shrink_data_map(data_map: &PyDataMap, chunk_dir: String) -> PyResult<PyDataMap> {
     let store_chunk = |hash: XorName, data: Bytes| -> Result<(), Error> {
         let path = std::path::Path::new(&chunk_dir).join(hex::encode(hash));
         let mut file = File::create(path)?;
@@ -195,7 +195,7 @@ fn shrink_data_map(data_map: &PyDataMap, chunk_dir: String) -> PyResult<PyDataMa
 }
 
 #[pyfunction]
-fn get_root_data_map(data_map: &PyDataMap, chunk_dir: String) -> PyResult<PyDataMap> {
+pub fn get_root_data_map(data_map: &PyDataMap, chunk_dir: String) -> PyResult<PyDataMap> {
     let get_chunk = |hash: XorName| -> Result<Bytes, Error> {
         let path = std::path::Path::new(&chunk_dir).join(hex::encode(hash));
         let mut file = File::open(path)?;

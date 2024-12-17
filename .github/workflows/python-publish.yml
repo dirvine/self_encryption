@@ -99,9 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target:
-          - x86_64-unknown-linux-musl
-          - i686-unknown-linux-musl
+        target: [x86_64-unknown-linux-musl, i686-unknown-linux-musl]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
@@ -112,8 +110,9 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         env:
-          PYO3_CROSS_PYTHON_VERSION: ${{ matrix.python-version }}
-          PYO3_CROSS: "1"
+          PYO3_CROSS_LIB_DIR: "/usr/lib"
+          PYO3_CROSS_INCLUDE_DIR: "/usr/include"
+          RUSTFLAGS: "-C target-feature=-crt-static"
         with:
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
@@ -167,4 +166,3 @@ jobs:
           packages-dir: dist/
           verbose: true
           print-hash: true
-  
