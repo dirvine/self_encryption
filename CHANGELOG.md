@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.32.5](https://github.com/dirvine/self_encryption/compare/v0.32.4...v0.32.5) (2024-12-24)
+
+
+### Bug Fixes
+
+* dep check ([a9d4bae](https://github.com/dirvine/self_encryption/commit/a9d4bae7a18de6acd8762e251f28fb81f4f01fa9))
+* fmt ([0fa2363](https://github.com/dirvine/self_encryption/commit/0fa2363e810f7598d946aab728779d1847788b1f))
+
 ### [0.29.2](https://github.com/maidsafe/self_encryption/compare/v0.29.1...v0.29.2) (2024-04-22)
 
 ### [0.29.1](https://github.com/maidsafe/self_encryption/compare/v0.29.0...v0.29.1) (2024-01-24)
